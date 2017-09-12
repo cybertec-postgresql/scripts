@@ -73,20 +73,12 @@ function check_ssh() {
 }
 
 function exec_sql() {
-   RET=$(${PG_REPLICA_BINDIR}/psql -qXAtc "$1")
+   RET=$(${PG_REPLICA_BINDIR}/psql -h ${PG_HOST} -p {PG_PORT} -U ${PG_USER} -qXAtc "$1" postgres)
     if [ "$?" -ne 0 ] ; then
       echo "Execution of SQL failed: $1"
       exit 1
     fi
    echo $RET
-}
-
-function check_superuser() {
-   RET=$(exec_sql "select rolsuper from pg_roles where rolname = session_user")
-   if [ "$RET" != "t" ] ; then
-     echo "User $PG_USER is not a superuser!"
-     exit 1
-   fi
 }
 
 function check_tablespaces() {
@@ -129,8 +121,7 @@ function stop_pg_receivewal() {
 }
 
 function move_received_wal_from_tmp_to_datadir() {
-    PARTIAL=`ls ${TEMP_WAL_FOLDER}/*.partial`
-    mv $PARTIAL `echo $PARTIAL | sed 's/\.partial//'`
+    rm ${TEMP_WAL_FOLDER}/*.partial
     mv ${TEMP_WAL_FOLDER}/* ${PG_REPLICA_DATADIR}/pg_xlog
     if [ "$?" -ne 0 ] ; then
       echo "Failed to move received WALs from ${TEMP_WAL_FOLDER} to WAL dir ${PG_REPLICA_DATADIR}/pg_xlog"
@@ -188,8 +179,6 @@ check_datadir_folder_empty_or_create
 check_config_file_exists
 
 check_ssh
-
-check_superuser
 
 check_tablespaces
 
