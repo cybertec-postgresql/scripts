@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+gd# ./parallel_basebackup.sh --check will onky check connectivty and master server settings
+if [ -n "$1" ] ; then
+  CHECK_ONLY=1
+fi
+
 # NB! verify/change all variables before running the script
 PG_MASTER_BINDIR=/usr/lib/postgresql/9.5/bin        # Ubuntu/Debian directories as samples here
 PG_REPLICA_BINDIR=/usr/lib/postgresql/9.5/bin
@@ -73,7 +78,7 @@ function check_ssh() {
 }
 
 function exec_sql() {
-   RET=$(${PG_REPLICA_BINDIR}/psql -h ${PG_HOST} -p {PG_PORT} -U ${PG_USER} -qXAtc "$1" postgres)
+   RET=$(${PG_REPLICA_BINDIR}/psql -h ${PG_HOST} -p ${PG_PORT} -U ${REPLICA_USER} -qXAtc "$1" postgres)
     if [ "$?" -ne 0 ] ; then
       echo "Execution of SQL failed: $1"
       exit 1
@@ -186,6 +191,8 @@ check_config_settings
 
 check_pigz
 
+if [ -z "$CHECK_ONLY" ] ; then
+
 start_pg_receivexlog
 
 do_parallel_basebackup_over_ssh
@@ -207,6 +214,8 @@ if [ "$START_REPLICA_AFTER_COPY" -eq 1 ] ; then
     start_server
 
     check_server_up
+fi
+
 fi
 
 echo "Done"
