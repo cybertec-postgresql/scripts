@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-gd# ./parallel_basebackup.sh --check will onky check connectivty and master server settings
+# ./parallel_basebackup.sh --check will onky check connectivty and master server settings
 if [ -n "$1" ] ; then
   CHECK_ONLY=1
 fi
