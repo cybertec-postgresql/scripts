@@ -41,7 +41,7 @@ where
 sql_truncate = """truncate table {table_name}"""
 
 sql_stat_activity = """
-insert into {table_name} dsgf
+insert into {table_name}
 select
   now() as snap_time,
   pid,
