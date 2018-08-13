@@ -148,16 +148,22 @@ def main():
 
     logger.info('creating the snapshot storage table "%s"...', args.snapshot_storage_table)
     _, errmsg = execute(conn, sql_create.format(unlogged=('unlogged' if args.unlogged else ''), table_name=args.snapshot_storage_table))
-    if errmsg and errmsg.find('already exists') > 0 and args.truncate:
-        logger.info('table already exist - truncating...')
-        _, errmsg = execute(conn, sql_truncate.format(table_name=args.snapshot_storage_table))
+    if errmsg:
+      if errmsg.find('already exists') > 0:
+        if args.truncate:
+          logger.info('table already exist - truncating...')
+          _, errmsg = execute(conn, sql_truncate.format(table_name=args.snapshot_storage_table))
+          exitOnErrormsg(errmsg)
+        else:
+          logger.error('table "%s" already exists! use the "--truncate" flag to clean it automatically', args.snapshot_storage_table)
+          sys.exit(1)
+      else:
         exitOnErrormsg(errmsg)
-    else:
-        logger.error('table "%s" already exists! use the "--truncate" flag to clean it automatically', args.snapshot_storage_table)
 
     err_count = 0
     start_time = time.time()
 
+    logger.info('running main loop for %ss...', args.duration_s)
     while True:
 
         if time.time() - start_time >= args.duration_s:
