@@ -56,7 +56,12 @@ select
   wait_event_type,
   wait_event,
   state,
-  ltrim(regexp_replace(query, E'[ \\t\\n\\r]+' , ' ', 'g'))::varchar(500) as query
+  case
+    when state != 'idle' then
+      ltrim(regexp_replace(query, E'[ \\t\\n\\r]+' , ' ', 'g'))::varchar(250)
+    else
+      null
+  end as query
 from
   pg_stat_activity
 where
