@@ -38,7 +38,7 @@ def workerProcess(id):
     logging.info('Starting worker process %s ...', id)
     while True:
         dbname, tbl = queue.get()
-        cmd = "{pg_dump} -h {host} -p {port} -U {user} -t '{tbl}' {dbname} >/dev/null".format(
+        cmd = '{pg_dump} -h {host} -p {port} -U "{user}" -t "{tbl}" "{dbname}" >/dev/null'.format(
                 pg_dump=os.path.join(args.bindir, 'pg_dump'), host=args.host, port=args.port, user=args.username, tbl=tbl, dbname=dbname)
         logging.info('Executing %s', cmd)
         retcode, output = shell_exec_with_output(cmd)
@@ -62,7 +62,7 @@ def launchWorkers():
 
 def verifySchema(dbname):
     logging.info('Dumping schema with pg_dump --schema-only for %s', dbname)
-    cmd =  '{pg_dump} -h {host} -p {port} -U {user} --schema-only {dbname} >/dev/null'.format(
+    cmd =  '{pg_dump} -h {host} -p {port} -U "{user}" --schema-only "{dbname}" >/dev/null'.format(
             pg_dump=os.path.join(args.bindir, 'pg_dump'), host=args.host, port=args.port, user=args.username, dbname=dbname)
     logging.info('Executing %s', cmd)
     retcode, output = shell_exec_with_output(cmd)
