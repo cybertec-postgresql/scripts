@@ -74,7 +74,8 @@ def addTablesFromDB(dbname):
     sql = """select quote_ident(nspname)||'.'||quote_ident(relname) as tbl
                 from pg_class c
                 join pg_namespace n on n.oid = c.relnamespace 
-                where relkind in ('r', 'm')
+                where relkind = 'r'
+                and relpersistence = 'p'
                 and not nspname like any(array['information_schema', E'pg\\_%'])
                 order by relpages desc"""
     tables = executeOnDB(sql, dbname=dbname)
