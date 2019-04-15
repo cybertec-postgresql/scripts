@@ -51,6 +51,7 @@ def workerProcess(id):
             logging.error("Failed to dump contents of table %s [%s]", tbl, dbname)
             global err_count
             err_count += 1
+            return
 
 
 def launchWorkers():
@@ -65,7 +66,7 @@ def launchWorkers():
 
 def verifyGlobals():
     logging.info('Dumping globals with pg_dumpall...')
-    cmd = '{pg_dumpall} -h {host} -p {port} -U "{user}" >/dev/null'.format(
+    cmd = '{pg_dumpall} -g -h {host} -p {port} -U "{user}" >/dev/null'.format(
             pg_dumpall=os.path.join(args.bindir, 'pg_dumpall'), host=args.host, port=args.port, user=args.username)
     logging.info('Executing %s', cmd)
     retcode, output = shell_exec_with_output(cmd)
@@ -152,7 +153,7 @@ def main():
     tables_added = 0
 
     for db in dbs:
-        # verifySchema(db)
+        verifySchema(db)
         table_count = addTablesFromDB(db)
         tables_added += table_count
 
